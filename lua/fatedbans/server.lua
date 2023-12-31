@@ -8,6 +8,12 @@ local function CleanPropsPly(target_ply)
     end
 end
 
+local function SetJob(pl, index)
+    pl:SetTeam(index, true)
+    pl:setDarkRPVar('job', pl:getJobTable().name)
+    pl:Spawn()
+end
+
 function banPlayer(ply, time, admin_nick, reason)
     if !IsValid(ply) then
         return
@@ -23,10 +29,18 @@ function banPlayer(ply, time, admin_nick, reason)
         ply.cWings:Remove()
     end
 
-    timer.Simple(1, function()
-        ply:changeTeam(FatedBansConfig.job_ban, true, true, true)
-        ply:Spawn()
-    end)
+    local job_index
+
+    for i = 1, #RPExtraTeams do
+        local v = RPExtraTeams[i]
+    
+        if v.command == FatedBansConfig.job_ban then
+            job_index = v.team
+            break
+        end
+    end
+
+    SetJob(ply, FatedBansConfig.job_ban)
 
     ply:SetNWBool('isBanned', true)
     ply.jailed = true
@@ -61,14 +75,10 @@ function unbanPlayer(ply)
     local data = bannedPlayers[ply:SteamID()]
 
     if data then
-        ply:changeTeam(FatedBansConfig.job_standart, true, true, true)
+        SetJob(ply, FatedBansConfig.job_standart)
+
         ply:ChatPrint('Наказание закончилось! Пожалуйста, соблюдайте правила!')
         ply:StripWeapon(ply.ban_wep)
-
-        timer.Simple(1, function()
-            ply:Spawn()
-        end)
-
         ply:SetNWBool('isBanned', false)
         ply.jailed = false
 
