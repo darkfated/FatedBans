@@ -35,6 +35,8 @@ function banPlayer(ply, time, admin_nick, reason)
     ply:UnLock()
     ply:sam_set_nwvar('frozen', false)
     ply:sam_set_exclusive(nil)
+    ply:sam_set_pdata('unmute_time', 0)
+    ply:SetNWBool('gm_muted', true)
     ply.jailed = true
 
     SetJob(ply, FatedBansConfig.job_ban)
@@ -72,6 +74,8 @@ function unbanPlayer(ply)
         ply:ChatPrint('Наказание закончилось! Пожалуйста, соблюдайте правила!')
         ply:StripWeapon(ply.ban_wep)
         ply:SetNWBool('isBanned', false)
+        ply:sam_set_pdata('unmute_time', nil)
+        ply:SetNWBool('gm_muted', false)
         ply.jailed = false
 
         SetJob(ply, FatedBansConfig.job_standart)
@@ -159,12 +163,6 @@ end)
 hook.Add('CanTool', 'ulxRemoveTool', function (listener, ply)
     if ply.jailed == true then
         return false
-    end
-end)
-
-hook.Add('PlayerSay', 'ulxRemoveSay', function (ply)
-    if ply.jailed == true then
-        return ''
     end
 end)
 
