@@ -9,9 +9,11 @@ local function CleanPropsPly(target_ply)
 end
 
 local function SetJob(pl, index)
-    pl:SetTeam(index, true)
-    pl:setDarkRPVar('job', pl:getJobTable().name)
-    pl:Spawn()
+    timer.Simple(1, function()
+        pl:SetTeam(index, true)
+        pl:setDarkRPVar('job', pl:getJobTable().name)
+        pl:Spawn()
+    end)
 end
 
 function banPlayer(ply, time, admin_nick, reason)
@@ -29,22 +31,14 @@ function banPlayer(ply, time, admin_nick, reason)
         ply.cWings:Remove()
     end
 
-    local job_index
-
-    for i = 1, #RPExtraTeams do
-        local v = RPExtraTeams[i]
-    
-        if v.command == FatedBansConfig.job_ban then
-            job_index = v.team
-            break
-        end
-    end
-
-    SetJob(ply, FatedBansConfig.job_ban)
-
     ply:SetNWBool('isBanned', true)
+    ply:UnLock()
+    ply:sam_set_nwvar('frozen', false)
+    ply:sam_set_exclusive(nil)
     ply.jailed = true
 
+    SetJob(ply, FatedBansConfig.job_ban)
+    
     CleanPropsPly(ply)
 
     timer.Create('banTimer_' .. ply:SteamID(), 1, time, function()
@@ -75,12 +69,12 @@ function unbanPlayer(ply)
     local data = bannedPlayers[ply:SteamID()]
 
     if data then
-        SetJob(ply, FatedBansConfig.job_standart)
-
         ply:ChatPrint('Наказание закончилось! Пожалуйста, соблюдайте правила!')
         ply:StripWeapon(ply.ban_wep)
         ply:SetNWBool('isBanned', false)
         ply.jailed = false
+
+        SetJob(ply, FatedBansConfig.job_standart)
 
         bannedPlayers[ply:SteamID()] = nil
 
@@ -101,9 +95,9 @@ hook.Add('ShutDown', 'DarkFated.SaveDataServerOff', function()
 end)
 
 hook.Add('PlayerInitialSpawn', 'CheckbanOnSpawn', function(ply)
-    if bannedPlayers[ply:SteamID()] then
-        local data = bannedPlayers[ply:SteamID()]
+    local data = bannedPlayers[ply:SteamID()]
 
+    if data then
         banPlayer(ply, data.left_time, data.by_admin, data.ban_reason)
         SendBannedPlayersUpdate(ply)
     end
@@ -127,7 +121,7 @@ end
 // Проверки
 hook.Add('PlayerSpawn', 'give_weapon_ban', function(ply)
     if ply.jailed == true then
-        timer.Simple(0, function()
+        timer.Simple(0.1, function()
             ply:StripWeapons()
 
             local wep = table.Random(FatedBansConfig.ban_weapons)
