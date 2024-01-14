@@ -24,7 +24,7 @@ command.new('ban')
     :AddArg('text', {hint = 'причина', optional = true, default = 'Не указано'})
     :Help('Забанить нарушителя.')
     :OnExecute(function(ply, targets, time, reason)
-        local admin_name = !ply:IsPlayer() and 'Сервер' or ply:Name()
+        local admin_name = ply:IsPlayer() and ply:Name() or 'Сервер'
 
         for _, target in ipairs(targets) do
             banPlayer(target, time * 60, admin_name, reason)
@@ -43,7 +43,7 @@ command.new('banid')
     :AddArg('text', {hint = 'причина', optional = true, default = 'Не указано'})
     :Help('Забанить нарушителя по SteamID.')
     :OnExecute(function(ply, steamid, time, reason)
-        local admin_name = !ply:IsPlayer() and 'Сервер' or ply:Name()
+        local admin_name = ply:IsPlayer() and ply:Name() or 'Сервер'
 
         if PlayerIsOnServer(steamid) then
             local target = player.GetBySteamID(steamid)
@@ -87,7 +87,7 @@ command.new('unbanid')
     :AddArg('text')
     :Help('Разбанить игрока по SteamID.')
     :OnExecute(function(ply, steamid)
-        local admin_name = !ply:IsPlayer() and 'Сервер' or ply:Name()
+        local admin_name = ply:IsPlayer() and ply:Name() or 'Сервер'
 
         if PlayerIsOnServer(steamid) then
             local target = player.GetBySteamID(steamid)
