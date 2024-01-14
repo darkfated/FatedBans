@@ -86,7 +86,7 @@ function unbanPlayer(ply)
     end
 end
 
-hook.Add('Initialize', 'DarkFated.StartDataban', function()
+hook.Add('Initialize', 'FatedBans.StartDataBan', function()
     if file.Exists('banned.txt', 'DATA') then
         bannedPlayers = util.JSONToTable(file.Read('banned.txt', 'DATA'))
     else
@@ -94,11 +94,11 @@ hook.Add('Initialize', 'DarkFated.StartDataban', function()
     end
 end)
 
-hook.Add('ShutDown', 'DarkFated.SaveDataServerOff', function()
+hook.Add('ShutDown', 'FatedBans.SaveDataServerOff', function()
     file.Write('banned.txt', util.TableToJSON(bannedPlayers))
 end)
 
-hook.Add('PlayerInitialSpawn', 'CheckbanOnSpawn', function(ply)
+hook.Add('PlayerInitialSpawn', 'FatedBans.CheckBan', function(ply)
     local data = bannedPlayers[ply:SteamID()]
 
     if data then
@@ -107,7 +107,7 @@ hook.Add('PlayerInitialSpawn', 'CheckbanOnSpawn', function(ply)
     end
 end)
 
-hook.Add('PlayerDisconnected', 'ban.PlyLeave', function(pl)
+hook.Add('PlayerDisconnected', 'FatedBans.Leave', function(pl)
     if timer.Exists('banTimer_' .. pl:SteamID()) then
         timer.Remove('banTimer_' .. pl:SteamID())
     end
@@ -123,7 +123,7 @@ function SendBannedPlayersUpdate(ply)
 end
 
 // Проверки
-hook.Add('PlayerSpawn', 'give_weapon_ban', function(ply)
+hook.Add('PlayerSpawn', 'FatedBans.GiveWeapons', function(ply)
     if ply.jailed == true then
         timer.Simple(0.1, function()
             ply:StripWeapons()
@@ -136,38 +136,44 @@ hook.Add('PlayerSpawn', 'give_weapon_ban', function(ply)
     end
 end)
 
-hook.Add('CanPlayerSuicide', 'ulxSuicedeCheck', function (ply)
+hook.Add('CanPlayerSuicide', 'FatedBans.RemoveKill', function (ply)
     if ply.jailed == true then
         return false
     end
 end)
 
-hook.Add('PlayerSpawnProp', 'ulxBlockSpawnIfInJail', function (ply)
+hook.Add('PlayerSpawnProp', 'FatedBans.RemoveSpawn', function (ply)
     if ply.jailed == true then
         return false
     end
 end)
 
-hook.Add('PlayerCanPickupItem', 'ulxPickUpRest', function (ply)
+hook.Add('PlayerCanPickupItem', 'FatedBans.RemovePick', function (ply)
     if ply.jailed == true then
         return false
     end
 end)
 
-hook.Add('PlayerUse', 'ulxRemove_Use', function (ply)
+hook.Add('PlayerUse', 'FatedBans.RemoveUse', function (ply)
     if ply.jailed == true then
         return false
     end
 end)
 
-hook.Add('CanTool', 'ulxRemoveTool', function (listener, ply)
+hook.Add('CanTool', 'FatedBans.RemoveTool', function (listener, ply)
     if ply.jailed == true then
         return false
     end
 end)
 
-hook.Add('playerCanChangeTeam', 'jobcanchange', function(ply, t)
+hook.Add('playerCanChangeTeam', 'FatedBans.RemoveChangeTeam', function(ply, t)
     if ply.jailed == true and RPExtraTeams[t] != FatedBansConfig.job_ban then
+        return false
+    end
+end)
+
+hook.Add('canDropWeapon', 'FatedBans.RemoveDropWeapon', function(ply)
+    if ply.jailed == true then
         return false
     end
 end)
