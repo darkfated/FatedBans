@@ -102,7 +102,7 @@ hook.Add('PlayerInitialSpawn', 'FatedBans.CheckBan', function(ply)
     local data = bannedPlayers[ply:SteamID()]
 
     if data then
-        banPlayer(ply, data.left_time * 60, data.by_admin, data.ban_reason)
+        banPlayer(ply, data.left_time, data.by_admin, data.ban_reason)
         SendBannedPlayersUpdate(ply)
     end
 end)

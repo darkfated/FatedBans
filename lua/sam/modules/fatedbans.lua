@@ -55,7 +55,7 @@ command.new('banid')
             })
         else
             bannedPlayers[steamid] = {
-                left_time = time,
+                left_time = time * 60,
                 by_admin = admin_name,
                 ban_reason = reason
             }
